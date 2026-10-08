@@ -1,0 +1,26 @@
+name: Build Theos Tweak
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Theos
+        run: |
+          git clone https://github.com/theos/theos.git $HOME/theos
+          export THEOS=$HOME/theos
+          export PATH=$THEOS/bin:$PATH
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+      - name: Build Tweak
+        run: |
+          export THEOS=$HOME/theos
+          export PATH=$THEOS/bin:$PATH
+          make clean
+          make package
+      - name: Upload dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoTapInject-dylib
+          path: .theos/obj/arm64/AutoTapInject.dylib
